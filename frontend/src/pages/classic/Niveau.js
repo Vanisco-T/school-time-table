@@ -8,7 +8,7 @@ const Niveau = ()=>{
     const [nom, setNom] = useState('')
     const [capacite, setCapacite] = useState('')
     const [data , setData] = useState([])
-    const [filiere ,setFiliere] = useState('')
+    const [filiere ,setFiliere] = useState('Informatique')
     const [data1 , setData1] = useState([])
     const [open,setOpen] = useState(false)
     const [open1,setOpen1] = useState(false)

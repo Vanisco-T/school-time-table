@@ -10,7 +10,7 @@ const Cour = ()=>{
     const [specialite,setSpecialite]=useState('')
     const [data , setData] = useState([])
     const [data1, setData1] = useState([])
-    const [filiere ,setFiliere] = useState('Mathematique')
+    const [filiere ,setFiliere] = useState('Informatique')
     const [niveau , setNiveau] = useState('Licence 1')
     const [data2 , setData2] = useState([])
     const [open,setOpen] = useState(false)
@@ -92,7 +92,7 @@ const Cour = ()=>{
     
             <div className="form-group">
             <label>intitule</label>
-            <input type="text" required size="1" value={intitule} className="form-control" placeholder=" Intitule "
+            <input type="text" value={intitule} className="form-control" placeholder=" Intitule "
                 onChange={(e) => setIntitule(e.target.value)}/>
             </div>
             <div className="form-group">

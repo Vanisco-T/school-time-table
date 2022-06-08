@@ -1,12 +1,20 @@
-import React,{useState} from "react";
+import React,{useState,useEffect} from "react";
 import Axios from 'axios'
 import Emploi from "../../../Emploi";
 
 const SalleG =()=>{
-    const [nom,setNom]=useState('')
+    const [nom,setNom]=useState('A1001')
     const [data ,setData]=useState([])
     const [show,setShow]=useState(false)
     const [loading, setLoading] =useState(false)
+    const [data2 ,setData2]=useState([])
+
+    useEffect(()=>{
+        Axios.get("http://localhost:4000/api/select/salle").then((response)=>{
+            setData2(response.data)
+        })
+        
+    },[])
 
     const submitNiveau =(e)=>{
         e.preventDefault()
@@ -32,11 +40,15 @@ const SalleG =()=>{
         <>
          <form className='form2' onSubmit={submitNiveau}>
             <div className="inside">
-                    <div className="form-group">
-                            <label>Nom </label>
-                            <input type="text" required size="1" value={nom} className="form-control" placeholder="Nom Salle"
-                                onChange={(e) => setNom(e.target.value)}
-                            />
+            <div className="form-group">
+            <label>Nom</label>
+            <select className="form-select" 
+                value={nom}
+                onChange={(e) => setNom(e.target.value)}   >
+              {
+       data2.map((resul)=>(<option title={resul.IdSalle} >{resul.NomSalle}</option>))
+      }
+            </select>
                     </div>
                     <input type="submit" value="Generer" className="send"/>
             </div>

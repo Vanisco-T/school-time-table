@@ -10,25 +10,12 @@ app.use(express.json())
 app.use(bodyParser.urlencoded({extended:true}))
 //Creation de La connection avec la BD
 const connection = await mysql.createConnection({
-  host:'localhost', 
+  host:'127.0.0.1', 
   user: 'vanisco',
   password:'chokoPIKAN2035@#',
   database: 'Bd'
 });
 //Simple requete de test dans la BD pour tester la
-const runDatabase = async () => {
-  const query = `
-    SELECT *
-    FROM Cours
-  `
-  try{
-    const [rows] = await connection.execute(query)
-
-    return {data: rows}
-  }catch(err){
-    return{ error: err }
-  }
-}
 //Tous Les Operation sur les table
 //Pour La Table Enseignant
 app.post("/api/ajouter/enseignant",(req,res)=>{
@@ -86,7 +73,7 @@ app.post("/api/ajouter/filiere",(req,res)=>{
       
       } catch (error) {
       console.log(error);
-      res.json({status:'error',error:"Salle Deja Existante"})
+      res.json({status:'error',error:"Filiere Deja Existante"})
       } 
    
 })
@@ -121,7 +108,6 @@ app.post("/api/ajouter/niveau",(req,res)=>{
   const filiere = req.body.filiere
   const sqlSelect="SELECT IdFiliere FROM Filiere WHERE NomFiliere=?"
    connection.query(sqlSelect,[filiere]).then((result)=>{
-  
     try {
       const sqlInsert="INSERT INTO Niveau (Capacite,NomNiveau,IdFiliere) VALUES (?,?,?) "
       connection.query(sqlInsert,[capacite,nom,result[0][0].IdFiliere])
@@ -233,7 +219,9 @@ app.post("/api/ajouter/salle",(req,res)=>{
 //Pour La Table Cours
 app.get("/api/select/cours",(req,res)=>{
   (async ()=>{
-    const sqlSelect="select * from Cours,Niveau,Filiere where Cours.IdNiveau=Niveau.IdNiveau AND Cours.IdFiliere=Filiere.IdFiliere"
+    const sqlSelect=`select * from Cours,Niveau,Filiere where 
+      Cours.IdNiveau=Niveau.IdNiveau AND
+      Cours.IdFiliere=Filiere.IdFiliere`
     const [row] =await connection.query(sqlSelect)
     //console.log(row)
     res.send(row)
@@ -288,7 +276,9 @@ app.post("/api/ajouter/cour",(req,res)=>{
       if(result[0].length !==0){
         if(specialite ===""){
           try {
-            const sqlInsert="INSERT INTO Cours (CodeCours,Intitule,IdFiliere,IdNiveau) VALUES (?,?,?,?) "
+            const sqlInsert=`INSERT INTO Cours 
+            (CodeCours,Intitule,IdFiliere,IdNiveau) 
+            VALUES (?,?,?,?)`
             connection.query(sqlInsert,[code,intitule,result[0][0].IdFiliere,result[0][0].IdNiveau])
             res.json({status:'ok'})
             } catch (error) {
@@ -302,7 +292,9 @@ app.post("/api/ajouter/cour",(req,res)=>{
               connection.query(query1,[specialite]).then((result1)=>{
                 if(result1[0].length !==0){
                   console.log(result1[0])
-                 const sqlInsert="INSERT INTO Cours (CodeCours,Intitule,IdSpecialite,IdFiliere,IdNiveau) VALUES (?,?,?,?,?) "
+                 const sqlInsert=`INSERT INTO Cours 
+                 (CodeCours,Intitule,IdSpecialite,IdFiliere,IdNiveau) 
+                 VALUES (?,?,?,?,?) `
                 connection.query(sqlInsert,[code,intitule,result1[0][0].IdSpecialite,result[0][0].IdFiliere,result[0][0].IdNiveau])
                 res.json({status:'ok'}) 
                 console.log(5)
@@ -332,7 +324,9 @@ app.post("/api/ajouter/cour",(req,res)=>{
 //Pour La Table Groupe
 app.get("/api/select/groupe",(req,res)=>{
   (async ()=>{
-    const sqlSelect="select * from Groupe,Niveau,Filiere where Groupe.IdNiveau=Niveau.IdNiveau AND Groupe.IdFiliere=Filiere.IdFiliere"
+    const sqlSelect=`select * from Groupe,Niveau,Filiere 
+    where Groupe.IdNiveau=Niveau.IdNiveau AND 
+    Groupe.IdFiliere=Filiere.IdFiliere`
     const [row] =await connection.query(sqlSelect)
     //console.log(row)
     res.send(row)
@@ -408,10 +402,12 @@ app.post("/api/ajouter/groupe",(req,res)=>{
       //console.log(result[0])
       if(result[0].length !==0){
           try {
-            const query = "select * from Groupe where NomGroupe=? AND IdFilie=? AND IdNiveau=?"
+            const query = "select * from Groupe where NomGroupe=? AND IdFiliere=? AND IdNiveau=?"
             connection.execute(query,[nom,result[0][0].IdFiliere,result[0][0].IdNiveau]).then((result1)=>{
               if(result1[0].length === 0){
-            const sqlInsert="INSERT INTO Groupe (CapaciteGroupe,NomGroupe,IdFiliere,IdNiveau) VALUES (?,?,?,?) "
+            const sqlInsert=`INSERT INTO Groupe 
+            (CapaciteGroupe,NomGroupe,IdFiliere,IdNiveau) 
+            VALUES (?,?,?,?) `
             connection.query(sqlInsert,[capacite,nom,result[0][0].IdFiliere,result[0][0].IdNiveau])
             /* const query1 = "select IdGroupe,IdNiveau from Groupe where NomGroupe=?"
             connection.execute(query1,[nom]).then((result2)=>{
@@ -439,10 +435,13 @@ app.post("/api/ajouter/groupe",(req,res)=>{
     }
   })    
 })
+
 //Pour La Table Specialite
 app.get("/api/select/specialite",(req,res)=>{
   (async ()=>{
-    const sqlSelect="select * from Specialite,Niveau,Filiere where Specialite.IdNiveau=Niveau.IdNiveau AND Specialite.IdFiliere=Filiere.IdFiliere"
+    const sqlSelect=`select * from 
+    Specialite,Niveau,Filiere where Specialite.IdNiveau=Niveau.IdNiveau 
+    AND Specialite.IdFiliere=Filiere.IdFiliere`
     const [row] =await connection.query(sqlSelect)
     //console.log(row)
     res.send(row)
@@ -521,7 +520,8 @@ app.post("/api/ajouter/specialite",(req,res)=>{
             const query = "select * from Specialite where NomSpecialite=? AND IdNiveau=? AND IdFiliere=?"
             connection.execute(query,[nom,result[0][0].IdNiveau,result[0][0].IdFiliere]).then((result1)=>{
               if(result1[0].length === 0){
-            const sqlInsert="INSERT INTO Specialite (Capacite,NomSpecialite,IdFiliere,IdNiveau) VALUES (?,?,?,?) "
+            const sqlInsert=`INSERT INTO Specialite 
+            (Capacite,NomSpecialite,IdFiliere,IdNiveau) VALUES (?,?,?,?) `
             connection.query(sqlInsert,[capacite,nom,result[0][0].IdFiliere,result[0][0].IdNiveau])
             res.json({status:'ok'})
               }
@@ -540,6 +540,7 @@ app.post("/api/ajouter/specialite",(req,res)=>{
     }
   })    
 })
+
 //Pour La Table Occupe
 app.post("/api/ajouter/dispense",(req,res)=>{
             const enseignant=req.body.enseignant
@@ -575,69 +576,75 @@ app.post("/api/ajouter/dispense",(req,res)=>{
           if(specialite !==''){
             const query1 = `SELECT IdNiveau FROM Niveau WHERE NomNiveau=?`
             connection.query(query1,[niveau]).then((result1)=>{
-              const query2 =`SELECT IdNiveau,IdSpecialite,Capacite FROM Specialite WHERE NomSpecialite=? AND IdNiveau=?`
+              const query2 =`SELECT IdNiveau,IdSpecialite,Capacite 
+              FROM Specialite WHERE NomSpecialite=? AND IdNiveau=?`
               connection.query(query2,[specialite,result1[0][0].IdNiveau]).then((result2)=>{
-                if(result2[0].length ===0){
-                  res.json({status:'error',error:"Cette Specialite N'est Pas Dans Ce Niveau"}) 
-                }
-                else{
+                console.log(result2[0].length)
+                if(result2[0].length !==0){
                   const query3 = `SELECT IdSalle,Capacite FROM Salle WHERE NomSalle=?`
                   connection.query(query3,[salle]).then((result3)=>{
                     if(result3[0].length===0){
                       res.json({status:'error',error:"Cette Salle N'existe Pas"}) 
                     }
                     else{
-                      const query4=`SELECT * FROM Occupe WHERE IdSalle=? AND date=? AND plage=?`
-                      connection.query(query4,[result3[0][0].IdSalle,date,plage]).then((result4)=>{
-                        if(result4[0].length !==0){
-                          res.json({status:'error',error:"Cette Salle N'est Pas Libre"}) 
-                        }
-                        else{
-                          const query5 =`SELECT IdEnseignant FROM Enseignant WHERE NomEnseignant=?`
-                          connection.query(query5,[enseignant]).then((result5)=>{
-                            if(result5[0].length === 0){
-                              res.json({status:'error',error:"Pas D'enseignant de ce nom"}) 
-                            }
-                            else{
-                              const query6=`SELECT * FROM Occupe WHERE IdEnseignant=? AND date=? AND plage=?`
-                              connection.query(query6,[result5[0][0].IdEnseignant,date,plage]).then((result6)=>{
-                                if(result6[0].length !==0){
-                                  res.json({status:'error',error:"Cette Enseignant N'est Pas Libre"})  
-                                }
-                                else{
-                                  const query7=`SELECT * FROM Occupe WHERE IdSpecialite=? AND date=? AND plage=?`
-                                  connection.query(query7,[result2[0][0].IdSpecialite,date,plage]).then((result7)=>{
-                                    if(result7[0].length !==0){
-                                      res.json({status:'error',error:"Cette Specialite N'est Pas Libre"})  
+                          const query4=`SELECT * FROM Occupe WHERE IdSalle=? AND date=? AND plage=?`
+                          connection.query(query4,[result3[0][0].IdSalle,date,plage]).then((result4)=>{
+                            if(result4[0].length !==0){
+                              res.json({status:'error',error:"Cette Salle N'est Pas Libre"}) 
+                            } 
+                          else{ 
+                            const query7=`SELECT * FROM Occupe WHERE IdSpecialite=? AND date=? AND plage=?`
+                            connection.query(query7,[result2[0][0].IdSpecialite,date,plage]).then((result7)=>{
+                              if(result7[0].length !==0){
+                                res.json({status:'error',error:"Cette Specialite  N'est Pas Libre"})  
+                              }
+                              else{
+                                const query8= `SELECT * FROM Cours,Specialite WHERE Cours.CodeCours=?
+                                 AND Specialite.IdSpecialite=?`
+                                connection.query(query8,[cour,result2[0][0].IdSpecialite]).then((result8)=>{
+                                  if (result8[0].length ===0){
+                                    res.json({status:'error',error:"Ce Cour N'Appartient Pas A Cette Specialite"})   
+                                  }
+                                  else{
+                                    if(result2[0][0].Capacite > result3[0][0].Capacite){
+                                      res.json({status:'error',error:"La Capacite De La Salle Insuffisant"})   
                                     }
                                     else{
-                                      const query8= `SELECT * FROM Cours WHERE CodeCours=? AND IdSpecialite=?`
-                                      connection.query(query8,[cour,result2[0][0].IdSpecialite]).then((result8)=>{
-                                        if (result8[0].length ===0){
-                                          res.json({status:'error',error:"Ce Cour N'Appartient Pas A Cette Specialite"})   
-                                        }
+                                      const query5 =`SELECT IdEnseignant FROM Enseignant WHERE NomEnseignant=?`  
+                                      connection.query(query5,enseignant).then((result5)=>{
+                                        if(result5[0].length === 0){
+                                          res.json({status:'error',error:"Pas D'enseignant de ce nom"}) 
+                                        } 
                                         else{
-                                          if(result2[0][0].Capacite > result3[0][0].Capacite){
-                                            res.json({status:'error',error:"La Capacite De La Salle Insuffisant"})   
-                                          }
-                                          else{
-                                            const query9=`INSERT INTO Occupe (IdNiveau,IdEnseignant,IdSalle,IdCours,Date,Plage,IdSpecialite) VALUES(?,?,?,?,?,?,?)`
-                                            connection.query(query9,[result1[0][0].IdNiveau,result5[0][0].IdEnseignant,result3[0][0].IdSalle,result8[0][0].IdCours,date,plage,result2[0][0].IdSpecialite])
-                                            res.json({status:'ok'})   
-                                          }
+                                          const query10=`SELECT * FROM Occupe WHERE IdEnseignant=?
+                                           AND date=? AND plage=?`
+                                          connection.query(query10,[result5[0][0].IdEnseignant,date,plage]).then((result10)=>{
+                                            if(result10[0].length !==0){
+                                              res.json({status:'error',error:"Cette Enseignant N'est Pas Libre"})  
+                                            } 
+                                            else{
+                                              const query9=`INSERT INTO Occupe 
+                                              (IdNiveau,IdSalle,IdCours,Date,Plage,IdSpecialite,IdEnseignant) 
+                                              VALUES(?,?,?,?,?,?,?)`
+                                              connection.query(query9,[result1[0][0].IdNiveau,result3[0][0].IdSalle,result8[0][0].IdCours,date,plage,result2[0][0].IdSpecialite,result5[0][0].IdEnseignant])
+                                              res.json({status:'ok'}) 
+                                            }
+                                          })
                                         }
                                       })
                                     }
-                                  })
-                                }
-                              })
-                            }
-                          })
-                        }
-                      })
-                    }
-                  })
-                }
+                                  }
+                                })
+                              }
+                            })
+                          }
+                         })
+                       }
+                    })
+                 }
+                else{
+                  res.json({status:'error',error:"Cette Specialite N'est Pas Dans Ce Niveau"})    
+                 }
               })
             })
           }
@@ -645,73 +652,58 @@ app.post("/api/ajouter/dispense",(req,res)=>{
             if(groupe !==''){
               const query1 = `SELECT IdNiveau FROM Niveau WHERE NomNiveau=?`
               connection.query(query1,[niveau]).then((result1)=>{
-                const query2 =`SELECT IdNiveau,IdGroupe,Capacite FROM Groupe WHERE NomGroupe=? AND IdNiveau=?`
+                const query2 =`SELECT IdNiveau,IdGroupe,CapaciteGroupe FROM Groupe WHERE NomGroupe=? AND IdNiveau=?`
                 connection.query(query2,[groupe,result1[0][0].IdNiveau]).then((result2)=>{
-                  if(result2[0].length ===0){
-                    res.json({status:'error',error:"Cette Groupe N'est Pas Dans Ce Niveau"}) 
-                  }
-                  else{
+                  console.log(result2[0].length)
+                  if(result2[0].length !==0){
                     const query3 = `SELECT IdSalle,Capacite FROM Salle WHERE NomSalle=?`
                     connection.query(query3,[salle]).then((result3)=>{
                       if(result3[0].length===0){
                         res.json({status:'error',error:"Cette Salle N'existe Pas"}) 
                       }
                       else{
-                        const query4=`SELECT * FROM Occupe WHERE IdSalle=? AND date=? AND plage=?`
-                        connection.query(query4,[result3[0][0].IdSalle,date,plage]).then((result4)=>{
-                          if(result4[0].length !==0){
-                            res.json({status:'error',error:"Cette Salle N'est Pas Libre"}) 
-                          }
-                          else{
-                            const query5 =`SELECT IdEnseignant FROM Enseignant WHERE NomEnseignant=?`
-                            connection.query(query5,[enseignant]).then((result5)=>{
-                              if(result5[0].length === 0){
-                                res.json({status:'error',error:"Pas D'enseignant de ce nom"}) 
-                              }
-                              else{
-                                const query6=`SELECT * FROM Occupe WHERE IdEnseignant=? AND date=? AND plage=?`
-                                connection.query(query6,[result5[0][0].IdEnseignant,date,plage]).then((result6)=>{
-                                  if(result6[0].length !==0){
-                                    res.json({status:'error',error:"Cette Enseignant N'est Pas Libre"})  
-                                  }
-                                  else{
-                                    const query7=`SELECT * FROM Occupe WHERE IdGroupe=? AND date=? AND plage=?`
-                                    connection.query(query7,[result2[0][0].IdGroupe,date,plage]).then((result7)=>{
-                                      if(result7[0].length !==0){
-                                        res.json({status:'error',error:"Cette Specialite N'est Pas Libre"})  
+                            const query4=`SELECT * FROM Occupe WHERE IdSalle=? AND date=? AND plage=?`
+                            connection.query(query4,[result3[0][0].IdSalle,date,plage]).then((result4)=>{
+                              if(result4[0].length !==0){
+                                res.json({status:'error',error:"Cette Salle N'est Pas Libre"}) 
+                              } 
+                            else{ 
+                              const query7=`SELECT * FROM Occupe WHERE IdGroupe=? AND date=? AND plage=?`
+                              connection.query(query7,[result2[0][0].IdGroupe,date,plage]).then((result7)=>{
+                                if(result7[0].length !==0){
+                                  res.json({status:'error',error:"Ce Groupe  N'est Pas Libre"})  
+                                }
+                                else{
+                                  const query8= `SELECT * FROM Cours,Groupe WHERE Cours.CodeCours=? AND Groupe.IdGroupe=?`
+                                  connection.query(query8,[cour,result2[0][0].IdGroupe]).then((result8)=>{
+                                    if (result8[0].length ===0){
+                                      res.json({status:'error',error:"Ce Cour N'Appartient Pas A Ce Groupe"})   
+                                    }
+                                    else{
+                                      if(result2[0][0].Capacite > result3[0][0].Capacite){
+                                        res.json({status:'error',error:"La Capacite De La Salle Insuffisant"})   
                                       }
                                       else{
-                                        const query8= `SELECT * FROM Cours WHERE CodeCours=? AND IdGroupe=?`
-                                        connection.query(query8,[cour,result2[0][0].IdGroupe]).then((result8)=>{
-                                          if (result8[0].length ===0){
-                                            res.json({status:'error',error:"Ce Cour N'Appartient Pas A Cette Groupe"})   
-                                          }
-                                          else{
-                                            if(result2[0][0].Capacite > result3[0][0].Capacite){
-                                              res.json({status:'error',error:"La Capacite De La Salle Insuffisant"})   
-                                            }
-                                            else{
-                                              const query9=`INSERT INTO Occupe (IdNiveau,IdEnseignant,IdSalle,IdCours,Date,Plage,IdGroupe) VALUES(?,?,?,?,?,?,?)`
-                                              connection.query(query9,[result1[0][0].IdNiveau,result5[0][0].IdEnseignant,result3[0][0].IdSalle,result8[0][0].IdCours,date,plage,result2[0][0].IdGroupe])
-                                              res.json({status:'ok'})   
-                                            }
-                                          }
-                                        })
+                                        const query9=`INSERT INTO Occupe (IdNiveau,IdSalle,IdCours,Date,Plage,IdGroupe) VALUES(?,?,?,?,?,?)`
+                                        connection.query(query9,[result1[0][0].IdNiveau,result3[0][0].IdSalle,result8[0][0].IdCours,date,plage,result2[0][0].IdGroupe])
+                                        res.json({status:'ok'})   
                                       }
-                                    })
-                                  }
-                                })
-                              }
-                            })
-                          }
-                        })
-                      }
-                    })
-                  }
+                                    }
+                                  })
+                                }
+                              })
+                            }
+                           })
+                         }
+                      })
+                   }
+                  else{
+                    res.json({status:'error',error:"Ce Groupe N'est Pas Dans Ce Niveau"})    
+                   }
                 })
               })
             }
-             else{
+        else{
               const query1 = `SELECT IdNiveau,Capacite FROM Niveau WHERE NomNiveau=?`
               connection.query(query1,[niveau]).then((result1)=>{
                 const query2 =`SELECT IdNiveau,Capacite FROM Niveau WHERE NomNiveau=?`
@@ -792,6 +784,7 @@ app.post("/api/ajouter/dispense",(req,res)=>{
     })
 
 })
+
   //Pour Le Niveau
 app.post("/api/select/dispense/niveau",(req,res)=>{
   const filiere= req.body.filiere
@@ -816,14 +809,21 @@ app.post("/api/select/dispense/niveau",(req,res)=>{
     connection.query(query,values).then((result)=>{
       if(result[0].length !==0){
         (async ()=>{
-          const query1=`SELECT * FROM Occupe,Niveau,Enseignant,Cours,Salle,Groupe WHERE Niveau.IdNiveau=? 
+          const query1=`SELECT * FROM Occupe,Niveau,Enseignant,Cours,Salle,Groupe 
+          WHERE Niveau.IdNiveau=? 
           AND Occupe.IdNiveau=Niveau.IdNiveau  AND  
           Occupe.IdEnseignant=Enseignant.IdEnseignant AND
           Occupe.IdCours=Cours.IdCours AND
           Occupe.IdSalle=Salle.IdSalle AND
           Occupe.IdGroupe=Groupe.IdGroupe`
           const [row] =await connection.query(query1,[result[0][0].IdNiveau])
+          const query2=`SELECT * FROM Occupe,Niveau,Cours,Salle,Groupe WHERE Niveau.IdNiveau=?
+           AND Occupe.IdNiveau=Niveau.IdNiveau   AND 
+           Occupe.IdCours=Cours.IdCours AND Occupe.IdSalle=Salle.IdSalle
+            AND  Occupe.IdGroupe=Groupe.IdGroupe`
+          const [row1] =await connection.query(query2,[result[0][0].IdNiveau])
           if(row.length !== 0){
+            row.push(row1)
             res.send(row)
           }
           else{
@@ -833,6 +833,9 @@ app.post("/api/select/dispense/niveau",(req,res)=>{
             Occupe.IdCours=Cours.IdCours AND
             Occupe.IdSalle=Salle.IdSalle`
             const [row] =await connection.query(query1,[result[0][0].IdNiveau])
+            for(let i=0;i<row1.length;i++){
+              row.push(row1[i])
+            }
             res.send(row)
           }
         })()
@@ -852,19 +855,29 @@ app.post("/api/select/dispense/salle",(req,res)=>{
           AND Occupe.IdNiveau=Niveau.IdNiveau  AND  
           Occupe.IdEnseignant=Enseignant.IdEnseignant AND
           Occupe.IdCours=Cours.IdCours AND
-          Occupe.IdSalle=Salle.IdSalle AND
-          Occupe.IdGroupe=Groupe.IdGroupe`
+          Occupe.IdSalle=Salle.IdSalle `
           const [row] =await connection.query(query1,[result[0][0].IdSalle])
+          const query2=`SELECT * FROM Occupe,Niveau,Cours,Salle,Groupe WHERE Salle.IdSalle=? 
+           AND Occupe.IdNiveau=Niveau.IdNiveau   AND 
+           Occupe.IdCours=Cours.IdCours AND Occupe.IdSalle=Salle.IdSalle
+            AND  Occupe.IdGroupe=Groupe.IdGroupe`
+          const [row1] =await connection.query(query2,[result[0][0].IdSalle])
+          console.log(row);
+          console.log(row1);
           if(row.length !== 0){
+            row.push(row1)
             res.send(row)
           }
           else{
-            const query1=`SELECT * FROM Occupe,Niveau,Enseignant,Cours,Salle WHERE Salle.IdSalle=? 
+            const query1=`SELECT * FROM Occupe,Niveau,Enseignant,Cours,Salle WHERE Niveau.IdNiveau=? 
             AND Occupe.IdNiveau=Niveau.IdNiveau  AND  
             Occupe.IdEnseignant=Enseignant.IdEnseignant AND
             Occupe.IdCours=Cours.IdCours AND
             Occupe.IdSalle=Salle.IdSalle`
             const [row] =await connection.query(query1,[result[0][0].IdSalle])
+            for(let i=0;i<row1.length;i++){
+              row.push(row1[i])
+            }
             res.send(row)
           }
         })()
@@ -880,7 +893,8 @@ app.post("/api/select/dispense/enseignant",(req,res)=>{
     connection.query(query,nom).then((result)=>{
       if(result[0].length !==0){
         (async ()=>{
-          const query1=`SELECT * FROM Occupe,Niveau,Enseignant,Cours,Salle,Groupe WHERE Enseignant.IdEnseignant=? 
+          const query1=`SELECT * FROM Occupe,Niveau,Enseignant,Cours,Salle,Groupe WHERE 
+          Enseignant.IdEnseignant=? 
           AND Occupe.IdNiveau=Niveau.IdNiveau  AND  
           Occupe.IdEnseignant=Enseignant.IdEnseignant AND
           Occupe.IdCours=Cours.IdCours AND
@@ -931,14 +945,19 @@ app.post("/api/select/dispense/specialite",(req,res)=>{
       if(result[0].length !==0){
        const query2=`select * from Specialite where IdNiveau=? AND NomSpecialite=?`
        connection.query(query2,[result[0][0].IdNiveau,specialite]).then((result3)=>{
+         console.log(result3[0]);
          if(result3[0].length !== 0){
           (async ()=>{
-            const query1=`SELECT * FROM Occupe,Niveau,Enseignant,Cours,Salle,Specialite WHERE Specialite.IdSpecialite=? 
+            const query1=`SELECT * FROM Occupe,Niveau,Enseignant,Cours,Salle,Specialite
+             WHERE Specialite.IdSpecialite=? 
             AND Occupe.IdNiveau=Niveau.IdNiveau  AND  
             Occupe.IdEnseignant=Enseignant.IdEnseignant AND
             Occupe.IdCours=Cours.IdCours AND
-            Occupe.IdSalle=Salle.IdSalle`
-            const [row] =await connection.query(query1,[result3[0][0].IdSpecialite])
+            Occupe.IdSalle=Salle.IdSalle AND
+            Specialite.IdNiveau=Cours.IdNiveau AND
+            Specialite.IdNiveau=? AND 
+            Cours.IdSpecialite=?`
+            const [row] =await connection.query(query1,[result3[0][0].IdSpecialite,result3[0][0].IdNiveau,result3[0][0].IdSpecialite])
             res.send(row)
           })()
          }
@@ -978,7 +997,8 @@ app.post("/api/select/autocomplete",(req,res)=>{
       console.log(result[0].length)
       if(result[0].length !==0){
         (async ()=>{
-        const query1 = `SELECT * FROM Cours,Niveau WHERE Niveau.IdNiveau=? AND Cours.IdNiveau=Niveau.IdNiveau`
+        const query1 = `SELECT * FROM Cours,Niveau WHERE Niveau.IdNiveau=? 
+        AND Cours.IdNiveau=Niveau.IdNiveau`
         const [row] = await connection.query(query1,[result[0][0].IdNiveau])
         res.send(row)
       })()
@@ -990,18 +1010,10 @@ app.post("/api/select/autocomplete",(req,res)=>{
 
 })
 
+const PORT =4000;
+app.listen(process.env.PORT || PORT,()=>{
+  console.log(`App running on port ${PORT}`)
 
-app.listen(4000,()=>{
-  console.log("App running on port 4000")
-  
-  //The test function
-  const func = async () => {
-    const { data, error } = await runDatabase()
-
-    if(data) return console.log(data)
-    return console.log(error);
-  }
-func()
 })
 
 

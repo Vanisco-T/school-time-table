@@ -10,7 +10,7 @@ const Specialite = ()=>{
     const [nom, setNom] = useState('')
     const [data , setData] = useState([])
     const [data1, setData1] = useState([])
-    const [filiere ,setFiliere] = useState('')
+    const [filiere ,setFiliere] = useState('Math')
     const [niveau , setNiveau] = useState('')
     const [data2 , setData2] = useState([])
     const [open,setOpen] = useState(false)

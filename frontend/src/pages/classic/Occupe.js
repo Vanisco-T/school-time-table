@@ -13,8 +13,8 @@ const Occupe = ()=>{
     const [data1, setData1] = useState([])
     const [specialite ,setSpecialite]=useState('')
     const [groupe,setGroupe]=useState('')
-    const [filiere ,setFiliere] = useState('')
-    const [niveau , setNiveau] = useState('')
+    const [filiere ,setFiliere] = useState('Informatique')
+    const [niveau , setNiveau] = useState('Licence 1')
 
     useEffect(()=>{
         Axios.get("http://localhost:4000/api/select/filiere").then((response)=>{
@@ -64,7 +64,7 @@ const Occupe = ()=>{
             <h3>Ajouter </h3>
             <div className="form-group">
             <label>Enseignant </label>
-            <input type="text" min="1" value={enseignant} className="form-control" placeholder="Entre Le Nom De L'enseignant"
+            <input type="text"  value={enseignant} className="form-control" placeholder="Entre Le Nom De L'enseignant"
                  onChange={(e) => setEnseignant(e.target.value)}
             />
             </div>
