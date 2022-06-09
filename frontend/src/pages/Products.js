@@ -15,8 +15,7 @@ export default function Products() {
       };
   return (
     <div>
-      <button onClick={print}>save</button>
-      <Test1/>
+     
     </div>
   );
 }

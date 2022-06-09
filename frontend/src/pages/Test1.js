@@ -14,7 +14,7 @@ const print = () => {
 
 const Test1 = () => {
   return <div>
-    <button onClick={print}>print</button>
+    
   </div>
 };
 

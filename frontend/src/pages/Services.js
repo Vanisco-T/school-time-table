@@ -1,17 +1,22 @@
-import React from "react";
+import React,{useState,useEffect} from "react";
+import Axios from 'axios'
 
 function Services() {
+  const [data , setData] = useState([])
+  useEffect(()=>{
+    Axios.get("http://localhost:4000/api/select/salle").then((response)=>{
+        setData(response.data)
+    })
+},[])
   return (
-    <><div className="main">
-      <div className="div">AMPHI 350</div>
-      <div className="div">AMPHI 250</div>
-      <div className="div">AMPHI 135</div>
-      <div  className="div">AMPHI 1001</div>
-      <div  className="div">R 106</div>
-      <div  className="div">E 204</div>
-      <div  className="div">S006</div>
+    <>
+    <div className="main1">
+    {
+       data.map((resul)=>(<div className="div"><p>{resul.NomSalle}</p><p>{resul.Capacite}</p></div>))
+      }
+     
     </div>
-    <button className="button1">Ajouter</button>
+   
     </>
   );
 }

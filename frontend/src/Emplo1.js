@@ -7,7 +7,7 @@ import Axios from 'axios'
 
 const Emploi1 =({array})=>{
 //Les Different donnees pour l'autocompletion
-const filiere=document.getElementById("fil").value
+const filiere="Informatique"/* document.getElementById("fil").value */
 let componentRef = useRef();
 const [data1 ,setData1]=useState([])
 const [data2 ,setData2]=useState([])

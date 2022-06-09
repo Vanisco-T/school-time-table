@@ -356,7 +356,6 @@ app.post("/api/supprimer/groupe",(req,res)=>{
       connection.query(query,values).then((result)=>{
         console.log(result[0])
       if(result[0].length !==0){
-        console.log(result[0])
         const query1=`SELECT * FROM Groupe WHERE NomGroupe=? AND IdFiliere=? AND IdNiveau=?`
         connection.query(query1,[group,result[0][0].IdFiliere,result[0][0].IdNiveau]).then((result1)=>{
           if(result1[0].length !==0){
@@ -436,6 +435,7 @@ app.post("/api/ajouter/groupe",(req,res)=>{
   })    
 })
 
+
 //Pour La Table Specialite
 app.get("/api/select/specialite",(req,res)=>{
   (async ()=>{
@@ -469,7 +469,6 @@ app.post("/api/supprimer/specialite",(req,res)=>{
         'IdFiliere'
           ];
       connection.query(query,values).then((result)=>{
-        console.log(result[0])
       if(result[0].length !==0){
         console.log(result[0])
         const query1=`SELECT * FROM Specialite WHERE NomGroupe=? AND IdFiliere=? AND IdNiveau=?`
@@ -498,23 +497,15 @@ app.post("/api/ajouter/specialite",(req,res)=>{
   const niveau = req.body.niveau
     const query = `SELECT * 
     FROM (SELECT *
-        FROM ?? WHERE ??.??=?) AS A
-         JOIN (  SELECT * FROM ?? WHERE ??.??=? )  As B  
-         ON A.?? = B.??`;
+        FROM Niveau WHERE Niveau.NomNiveau=?) AS A
+         JOIN (  SELECT * FROM Filiere WHERE Filiere.NomFiliere=? )  As B  
+         ON A.IdFiliere = B.IdFiliere`;
     const values = [
-        'Niveau',              
-        'Niveau',        
-        'NomNiveau',
          niveau,
-        'Filiere',
-        'Filiere',
-        'NomFiliere',
         filiere,
-        'IdFiliere',
-        'IdFiliere'
-          ];
+         ];
     connection.query(query,values).then((result)=>{
-      //console.log(result[0])
+      console.log(result[0])
       if(result[0].length !==0){
           try {
             const query = "select * from Specialite where NomSpecialite=? AND IdNiveau=? AND IdFiliere=?"
@@ -774,7 +765,6 @@ app.post("/api/ajouter/dispense",(req,res)=>{
             }
           }
         } catch (error) {
-          console.log(error)
           res.json({status:'error',error:"Impossible D'ajouter"})
         }
       }
@@ -862,8 +852,6 @@ app.post("/api/select/dispense/salle",(req,res)=>{
            Occupe.IdCours=Cours.IdCours AND Occupe.IdSalle=Salle.IdSalle
             AND  Occupe.IdGroupe=Groupe.IdGroupe`
           const [row1] =await connection.query(query2,[result[0][0].IdSalle])
-          console.log(row);
-          console.log(row1);
           if(row.length !== 0){
             row.push(row1)
             res.send(row)
@@ -993,8 +981,7 @@ app.post("/api/select/autocomplete",(req,res)=>{
         'IdFiliere',
         'IdFiliere'
           ];
-    connection.query(query,values).then((result)=>{
-      console.log(result[0].length)
+      connection.query(query,values).then((result)=>{
       if(result[0].length !==0){
         (async ()=>{
         const query1 = `SELECT * FROM Cours,Niveau WHERE Niveau.IdNiveau=? 

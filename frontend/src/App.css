@@ -237,6 +237,45 @@ display: inline-block;
 width:140px;
 font-size: 14px;
 }
- 
+.over1{
+  display:inline-flex;
+  justify-content: space-between;
+  margin-left: 15%;
+  margin-top: 2%;
+}
+.inside1{
+  background-color: #469775;
+  height: 150px;
+  width: 200px;
+  margin: 3%;
+  border-radius: 8px;
+  text-align: center;
+}
 
+.inside1 p{
+  margin-top: 3px;
+  color: rgb(233, 220, 47);
+}
+.inside1 h3{
+ font-size: 55px;
+}
+.icon{
+  font-size: 35px;
+  background-color: #fff;
+  border: none;
+}
+.inside1 h2{
+  margin-top: -9px;
+  margin-left: -120px;
+}
+.main1{
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr;
+  grid-template-rows: 100px 100px 100px 100px 100px 100px;
+  row-gap: 20px;
+}
 
+.main1 .div{
+  height: 100px;
+  width: 100px;
+}
